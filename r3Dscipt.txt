@@ -1,0 +1,85 @@
+#3D GRAFIKON ZA LATINSKI KVADRAT 4x4 color
+# install.packages("plotly")  # Uncomment if plotly is not yet installed
+library(plotly)
+library(knitr)
+
+# Define your data
+data <- data.frame(
+  Red = factor(rep(1:4, each = 4), levels = 1:4),
+  Kolona = factor(rep(1:4, times = 4), levels = 1:4),
+#3D GRAFIKON ZA LATINSKI KVADRAT 4x4 blackWhite
+# 3D GRAFIKON ZA LATINSKI KVADRAT 4x4
+
+# install.packages("plotly")  # Uncomment if plotly is not yet installed
+library(plotly)
+library(knitr)
+
+# Define your data
+data <- data.frame(
+  Red = factor(rep(1:4, each = 4), levels = 1:4),
+  Kolona = factor(rep(1:4, times = 4), levels = 1:4),
+  Tretman = factor(c("A","B","C","D",
+                     "B","C","D","A",
+                     "C","D","A","B",
+                     "D","A","B","C")),
+  Promenljiva = c(20.2, 20.6, 21.2, 21.7,
+                  20.7, 21.3, 21.9, 20.4,
+                  21.4, 22.0, 20.3, 20.8,
+                  22.2, 20.5, 21.0, 21.6)
+)
+
+# Define custom tick values and labels
+red_tickvals <- 1:4
+red_ticktext <- c("1st", "2nd", "3rd", "4th")
+kolona_tickvals <- 1:4
+# 3D GRAFIKON ZA LATINSKI KVADRAT 4x4 blackNwhite
+
+# install.packages("plotly")  # Uncomment if plotly is not yet installed
+library(plotly)
+library(knitr)
+
+# Define your data
+data <- data.frame(
+  Red = factor(rep(1:4, each = 4), levels = 1:4),
+  Kolona = factor(rep(1:4, times = 4), levels = 1:4),
+  Tretman = factor(c("A","B","C","D",
+                     "B","C","D","A",
+                     "C","D","A","B",
+                     "D","A","B","C")),
+  Promenljiva = c(3.12,3.18,3.30,3.35,3.21,3.32,3.39,3.14,3.34,3.42,3.13,3.19,3.48,3.14,3.22,3.34)
+)
+
+# Define custom tick values and labels
+red_tickvals <- 1:4
+red_ticktext <- c("1", "2", "3", "4")
+kolona_tickvals <- 1:4
+kolona_ticktext <- c("I", "II", "III", "IV")
+
+# Split data by Tretman
+data_A <- subset(data, Tretman == "A")
+data_B <- subset(data, Tretman == "B")
+data_C <- subset(data, Tretman == "C")
+data_D <- subset(data, Tretman == "D")
+
+# Plot each group separately
+plot_ly() %>%
+  add_trace(data = data_A, x = ~Red, y = ~Kolona, z = ~Promenljiva, type = 'scatter3d', mode = 'markers',
+            marker = list(color = 'white', size = 8, line = list(color = 'black', width = 2)),
+            name = "A") %>%
+  add_trace(data = data_B, x = ~Red, y = ~Kolona, z = ~Promenljiva, type = 'scatter3d', mode = 'markers',
+            marker = list(color = 'lightgray', size = 8, line = list(color = 'black', width = 2)),
+            name = "B") %>%
+  add_trace(data = data_C, x = ~Red, y = ~Kolona, z = ~Promenljiva, type = 'scatter3d', mode = 'markers',
+            marker = list(color = 'gray', size = 8),
+            name = "C") %>%
+  add_trace(data = data_D, x = ~Red, y = ~Kolona, z = ~Promenljiva, type = 'scatter3d', mode = 'markers',
+            marker = list(color = 'black', size = 8),
+            name = "D") %>%
+  layout(scene = list(
+    xaxis = list(title = "Nedelja", tickvals = red_tickvals, ticktext = red_ticktext, gridwidth = 4),
+    yaxis = list(title = "Krava", tickvals = kolona_tickvals, ticktext = kolona_ticktext, gridwidth = 4),
+    zaxis = list(title = "Sadržaj proteina, %", gridwidth = 4)
+  ))
+
+# Optional: Display data table
+kable(data)
