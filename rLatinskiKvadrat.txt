@@ -1,0 +1,89 @@
+# Load required libraries
+library(readxl)
+library(agricolae)
+library(ggplot2)
+library(dplyr)
+
+# Ucitavanje podataka - adjust path
+podaci <- read_excel("C:/Users/Shomikle/Desktop/tanasijeZavrsni/import.xlsx")
+View(podaci)
+
+# Provera ucitavanja
+head(podaci)
+str(podaci)
+
+# Pretvaranje u faktore
+podaci$Red <- as.factor(podaci$Red)
+podaci$Kolona <- as.factor(podaci$Kolona)
+podaci$Tretman <- as.factor(podaci$Tretman)
+str(podaci)
+
+# Analiza varijanse (ANOVA)
+model <- lm(formula = Promenljiva ~ Red + Kolona + Tretman, podaci)
+anova(model)
+
+# LSD test - adjust Izvor for Red, Kolona, Tretman, and alfa level
+LSD.test(
+  y = model,
+  trt = "Izvor",
+  DFerror = model$df.residual,
+  MSerror = deviance(model) / model$df.residual,
+  alpha = 0.01,
+  group = TRUE,
+  console = TRUE
+)
+
+# Deskriptivna statistika - adjust Izvor for Red, Kolona, and Tretman
+descriptive_stats <- podaci %>%
+  group_by(Izvor) %>%
+  summarise(
+    Count = n(),
+    Mean = mean(Promenljiva, na.rm = TRUE),
+    SD = sd(Promenljiva, na.rm = TRUE),
+    CV = (sd(Promenljiva, na.rm = TRUE) / mean(Promenljiva, na.rm = TRUE)) * 100
+  )
+
+# Ispis deskriptivne statistike
+print(descriptive_stats)
+
+# Priprema podataka za grafikon - adjust Izvor for Red, Kolona, and Tretman
+summary_stats <- descriptive_stats %>%
+  select(Izvor, Mean, SD)
+# Add numeric x-position for plotting
+summary_stats <- summary_stats %>%
+  mutate(Izvor_num = as.numeric(Red))
+
+# y-axis limits - adjust for position
+y_min <- min(summary_stats$Mean - summary_stats$SD)
+y_max <- max(summary_stats$Mean + summary_stats$SD)
+#y_min <- min(summary_stats$Mean - summary_stats$SD) + 0.5 adjust
+#y_max <- max(summary_stats$Mean + summary_stats$SD) + 0.5 adjust
+
+# Plot - crtanje grafikona
+ggplot(summary_stats, aes(x = Izvor_num, y = Mean)) +
+  # Horizontal mean line - adjust for line position and line width
+  geom_segment(aes(x = Izvor_num - 0.3, xend = Red_num + 0.3,
+                   y = Mean, yend = Mean),
+               color = "black", linewidth = 1.5) +
+  # Vertical SD line  - adjust for line width
+  geom_segment(aes(x = Izvor_num, xend = Izvor_num,
+                   y = Mean - SD, yend = Mean + SD),
+               color = "gray", linewidth = 2) +
+  # Mean label to the left - adjust if requiered
+  geom_text(aes(x = Izvor_num - 0.35, label = round(Mean, 2)),
+            hjust = 0.9, vjust = 0.5, size = 3.1, color = "black") +
+  # SD label above vertical line - adjust Mean+ value for requiered value
+  geom_text(aes(x = Izvor_num, y = Mean + 0.12,
+                label = paste0("±", round(SD, 2))),
+            vjust = 0, size = 3.2, color = "black") +
+  # X-axis settings - adjust labs and title
+  scale_x_continuous(breaks = summary_stats$Izvor_num,
+                     labels = summary_stats$Izvor) +
+  labs(x = "X title here", y = "Y title here", title = "Chart title here") +
+  coord_cartesian(ylim = c(y_min, y_max)) +
+  theme_minimal() +
+ theme(
+  axis.text.y = element_blank(),
+  panel.grid = element_blank(),
+  axis.text.x = element_text(color = "black", size = 14, face = "bold")
+)
